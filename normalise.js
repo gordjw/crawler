@@ -1,3 +1,8 @@
+/**
+ * 
+ * @param {string} url 
+ * @returns {string}
+ */
 const normalise = function(url) {
     urlObject = new URL(url);
     normalisedUrl = `${urlObject.host}${urlObject.pathname}`
