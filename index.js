@@ -1,24 +1,47 @@
+const { argv } = require('node:process');
+
 const Queue = require('./queue')
 const extract = require('./extract')
 const normalise = require('./normalise')
 const retrieve = require('./retrieve')
 
 async function main() {
+    if( !argv[2] ) {
+        console.log("Error: no url supplied")
+        return
+    } else {
+        try {
+            url = new URL(argv[2] ) 
+        } catch(err) {
+            console.log(`Error: ${err.message}`)
+            return
+        }
+    }
     console.log("Starting crawler")
 
     const queue = new Queue()
-    const baseUrl = 'https://gordjw.me'
+    const baseUrl = argv[2]
     const visited = new Map()
 
     queue.push(baseUrl)
 
     while( queue.size() > 0 ) {
         const url = queue.pop()
-        const document = await retrieve(url)
+        let document
+        try {
+            document = await retrieve(url)
+        } catch(err) {
+            console.log(err.message)
+            continue
+        }
         const links = extract(document, baseUrl)
 
         for( link of links ) {
-            console.log(`Checking ${link}...`)
+            if( link === "" || ! link ) {
+                console.log(`Malformed link: ${link}, skipping`)
+                continue
+            }
+            console.log(`Checking link: ${link}`)
             if( link.startsWith(baseUrl) ) {
                 if( visited.has(link) ) {
                     console.log("Already queued, skipping")  
