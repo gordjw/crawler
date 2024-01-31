@@ -14,13 +14,12 @@ const retrieve = async function(url) {
         throw new Error(`Skipping document. Got Content-type ${headerCheck.headers.get('Content-Type')}, expected text/html`)
     }
 
-
     const response = await fetch(url, {
         method: 'GET',
         mode: 'cors'
     })
 
-    if( response.status !== 200 ) {
+    if( response.status >= 400 ) {
         throw new Error(`Error retrieving document. Got response.status ${response.status}, expected 200`)
     }
 

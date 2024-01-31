@@ -20,7 +20,7 @@ async function main() {
     console.log("Starting crawler")
 
     const queue = new Queue()
-    const baseUrl = argv[2]
+    const baseUrl = normalise(argv[2])
     const visited = new Map()
 
     queue.push(baseUrl)
@@ -36,10 +36,14 @@ async function main() {
             console.log(err.message)
             continue
         }
+
         const links = extract(document, baseUrl)
         console.log(`Found ${links.length} links`)
 
         for( link of links ) {
+
+            link = normalise(link)
+
             if( link === "" || ! link ) {
                 console.log(`Malformed link: ${link}, skipping`)
                 continue
@@ -48,17 +52,22 @@ async function main() {
 
             if( link.startsWith(baseUrl) ) {
                 if( visited.has(link) ) {
-                    console.log("Already queued, skipping")  
-                    let count = visited.get(link) + 1
-                    visited.set(link, count)
+                    console.log("Already checked or queued, skipping")
                 } else {
                     console.log("Adding to queue")
                     queue.push(link)
-                    visited.set(link, 1)
                 }
+
+                let outgoings
+                if( visited.has(url) ) {
+                    outgoings = visited.get(url)
+                } else {
+                    outgoings = new Set()
+                }
+                outgoings.add(link)
+                visited.set(url, outgoings)
             } else {
                 console.log("External link, not adding to queue")
-                visited.set(link, -1)
             }
         }
     }
