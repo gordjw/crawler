@@ -28,6 +28,8 @@ async function main() {
     while( queue.size() > 0 ) {
         const url = queue.pop()
         let document
+
+        console.log(`Retrieving: ${url}`)
         try {
             document = await retrieve(url)
         } catch(err) {
@@ -35,6 +37,7 @@ async function main() {
             continue
         }
         const links = extract(document, baseUrl)
+        console.log(`Found ${links.length} links`)
 
         for( link of links ) {
             if( link === "" || ! link ) {
@@ -42,6 +45,7 @@ async function main() {
                 continue
             }
             console.log(`Checking link: ${link}`)
+
             if( link.startsWith(baseUrl) ) {
                 if( visited.has(link) ) {
                     console.log("Already queued, skipping")  
@@ -54,6 +58,7 @@ async function main() {
                 }
             } else {
                 console.log("External link, not adding to queue")
+                visited.set(link, -1)
             }
         }
     }

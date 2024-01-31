@@ -4,6 +4,17 @@
  * @returns {string}
  */
 const retrieve = async function(url) {
+    const headerCheck = await fetch(url, {
+        method: 'HEAD',
+        mode: 'cors'
+    })
+
+    // We're only interested in text/html docs, let's not waste bandwidth downloading images, videos, etc
+    if( !headerCheck.headers.get('Content-Type').startsWith('text/html') ) {
+        throw new Error(`Skipping document. Got Content-type ${headerCheck.headers.get('Content-Type')}, expected text/html`)
+    }
+
+
     const response = await fetch(url, {
         method: 'GET',
         mode: 'cors'
