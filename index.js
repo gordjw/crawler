@@ -28,10 +28,13 @@ async function main() {
     while( queue.size() > 0 ) {
         const url = queue.pop()
         let document
+        const outgoings = new Set()
+
 
         console.log(`Retrieving: ${url}`)
         try {
             document = await retrieve(url)
+            visited.set(url, outgoings)
         } catch(err) {
             console.log(err.message)
             continue
@@ -58,12 +61,6 @@ async function main() {
                     queue.push(link)
                 }
 
-                let outgoings
-                if( visited.has(url) ) {
-                    outgoings = visited.get(url)
-                } else {
-                    outgoings = new Set()
-                }
                 outgoings.add(link)
                 visited.set(url, outgoings)
             } else {
